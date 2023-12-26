@@ -25,7 +25,7 @@ class RegistrationView(APIView):
             token = default_token_generator.make_token(user)
             activation_url = 'http://127.0.0.1:8000/activate/'+ uid + '/' + token +'/'
             print(activation_url)
-            #send_activation_email(user.email, activation_url)
+            send_activation_email(user.email, activation_url)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
@@ -119,7 +119,7 @@ class ResetpasswordView(APIView):
         token = default_token_generator.make_token(user)
         activation_url = 'http://127.0.0.1:8000/confirmreset/'+ uid + '/' + token +'/'
         print(activation_url)
-        #send_reset_password_email(user.email, activation_url)
+        send_reset_password_email(user.email, activation_url)
         return Response({'detail': 'Password reset email sent successfully.'}, status=status.HTTP_200_OK)
 
 class ConformResetPasswordView(APIView):
