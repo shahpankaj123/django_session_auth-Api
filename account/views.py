@@ -1,7 +1,6 @@
 from django.contrib.auth import authenticate, login, logout
 from account.models import User
 from django.contrib.auth.tokens import default_token_generator
-from django.urls import reverse
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from rest_framework import status
@@ -13,6 +12,12 @@ from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
 from django.utils.decorators import method_decorator
 from django.conf import settings
 from account.utils import send_activation_email,send_reset_password_email
+
+@method_decorator(ensure_csrf_cookie, name='dispatch')
+class GetCSRFToken(APIView):
+    permission_classes = [AllowAny]
+    def get(self, request):
+        return Response({'success':'CSRF Cookie Set'})
 
 @method_decorator(csrf_protect, name='dispatch')
 class RegistrationView(APIView):
@@ -29,6 +34,7 @@ class RegistrationView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
+@method_decorator(csrf_protect, name='dispatch')   
 class ActivateUser(APIView):
     permission_classes=[AllowAny]
     def get(self,request,id,token):
@@ -49,7 +55,7 @@ class ActivateUser(APIView):
             return Response({'detail': 'Invalid activation link.'}, status=status.HTTP_400_BAD_REQUEST)
 
 
-#@method_decorator(csrf_protect, name='dispatch')
+@method_decorator(csrf_protect, name='dispatch')
 class LoginView(APIView):
 
     permission_classes=[AllowAny]
@@ -69,22 +75,18 @@ class LoginView(APIView):
 
 
 class LogoutVeiw(APIView):
-    permission_classes=[IsAuthenticated]
+    permission_classes=[AllowAny]
     def get(self,request):
         logout(request)
         return Response({'detail': 'Logout successfully.'}, status=status.HTTP_200_OK)
     
 class UserdetailView(APIView):
-    permission_classes=[IsAuthenticated]
     def get(self,request):
         serializer=UserSerializer(request.user)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
 
 class ChangePasswordView(APIView):
-
-    permission_classes=[IsAuthenticated]
-
     def post(self,request):
         old_password=request.data.get('old_password')
         new_password=request.data.get('new_password')
@@ -97,14 +99,13 @@ class ChangePasswordView(APIView):
         return Response({'detail': 'Password changed successfully.'}, status=status.HTTP_200_OK)
 
 class UserdeleteView(APIView):
-    permission_classes=[IsAuthenticated]
-
     def delete(self,request):
         user=request.user  
         user.delete()
         logout(request)
         return Response({'detail': 'User Deleted successfully.'}, status=status.HTTP_200_OK)
-
+    
+@method_decorator(csrf_protect, name='dispatch')
 class ResetpasswordView(APIView):
     permission_classes=[AllowAny]
     def post(self,request):
@@ -121,7 +122,8 @@ class ResetpasswordView(APIView):
         print(activation_url)
         send_reset_password_email(user.email, activation_url)
         return Response({'detail': 'Password reset email sent successfully.'}, status=status.HTTP_200_OK)
-
+    
+@method_decorator(csrf_protect, name='dispatch')
 class ConformResetPasswordView(APIView):
     permission_classes=[AllowAny]
     def post(self,request,id,token):

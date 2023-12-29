@@ -1,7 +1,9 @@
 from django.urls import path
-from .views import RegistrationView,ActivateUser,LoginView,LogoutVeiw,UserdetailView,ChangePasswordView,UserdeleteView,ResetpasswordView,ConformResetPasswordView
+from .views import RegistrationView,ActivateUser,LoginView,LogoutVeiw,UserdetailView,ChangePasswordView,UserdeleteView,ResetpasswordView,ConformResetPasswordView,GetCSRFToken
+
 
 urlpatterns = [
+    path('csrf_cookie/', GetCSRFToken.as_view(), name='csrf_cookie'),
     path('register/',RegistrationView.as_view(),name='register'),
     path('activate/<id>/<token>/',ActivateUser.as_view(),name='activate'),
     path('Login/',LoginView.as_view(),name='login'),

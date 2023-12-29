@@ -139,3 +139,19 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = 'pankajsha128@gmail.com'
 EMAIL_HOST_PASSWORD = 'glcsxohcvwwdmyqn'
 EMAIL_USE_SSL = False
+
+REST_FRAMEWORK = {
+    # Enable Session Authentication for App
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+    # Enable IsAuthenticated Permission
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+    # Disable Browsable API and Render JSON
+    'DEFAULT_RENDERER_CLASSES':('rest_framework.renderers.JSONRenderer',),
+}
+
+# Sessionid Expire default is 1209600 sec = 14 days
+SESSION_COOKIE_AGE = 1800   # 30 Min
